@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='platemotion',
-    version='0.1.0',
+    version='0.1.4',
     description='A package to handle the tectonic plate motion',
     author='Chunxiao Li',
     author_email='lcx366@126.com',
@@ -14,7 +14,7 @@ setup(
     keywords = ['tectonic plate','plate motion','nnr-morvel56','gsrmv2.1','itrf2014'],
     python_requires = '>=3.8',
     classifiers = [
-        'Development Status :: 4 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
         'Programming Language :: Python :: 3.8',
@@ -26,7 +26,7 @@ setup(
     install_requires=[
         'numpy',
         'scipy',
-        'matplotlib'
+        'matplotlib',
         'astropy',
         'pandas',
         'xarray',
@@ -34,8 +34,8 @@ setup(
         ],
     extras_require={
         'colored-progress': ['tqdm','colorama'],
-        'download': ['ftplib','requests']
+        'download': ['ftplib','requests'],
         'files': ['pkg_resources','os','pathlib','gzip','zipfile'],
-        'other': ['datetime','time']
+        'other': ['datetime','time'],
         },        
     )
