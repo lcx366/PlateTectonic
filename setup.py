@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='platemotion',
-    version='0.1.4',
+    version='0.1.7',
     description='A package to handle the tectonic plate motion',
     author='Chunxiao Li',
     author_email='lcx366@126.com',

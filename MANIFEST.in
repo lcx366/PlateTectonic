@@ -1,2 +1,6 @@
 include README.md
 include LICENSE.txt
+include test.ipynb
+include platemotion/data/*
+include platemotion/data/NnrGSRMv2.1_PltBndsLatLon/*
+include platemotion/data/NnrMRVL_PltBndsLatLon/*

@@ -91,6 +91,25 @@ def PMC(sites_info):
 def res(v_en,A,w_xyz):
     return v_en-A@w_xyz
 
+def w1_w2(w1_xyz,w1_xyz_std,w2_xyz,w2_xyz_std):
+    w_xyz = w2_xyz - w1_xyz
+    w_xyz_std = np.sqrt(w1_xyz_std**2+w2_xyz_std**2)
+    w,w_lon,w_lat,w_std,w_lon_std,w_lat_std = w_xyz_std2w_std(w_xyz,w_xyz_std)
+    
+    w_xyz *= u.deg/u.Ma
+    w_xyz_std *= u.deg/u.Ma
+    w *= u.deg/u.Ma
+    w_std *= u.deg/u.Ma
+    w_lon,w_lat = w_lon.to(u.deg),w_lat.to(u.deg)
+    w_lon_std,w_lat_std = (w_lon_std*u.rad).to(u.deg),(w_lat_std*u.rad).to(u.deg)
+    
+    omega_cartesian = w_xyz
+    omega_cartesian_std = w_xyz_std
+    omega_spherical = w_lat,w_lon,w
+    omega_spherical_std = w_lat_std,w_lon_std,w_std
+    
+    return omega_cartesian,omega_cartesian_std,omega_spherical,omega_spherical_std      
+
 def PMC_iterate(sites_info):
     n = len(sites_info)
     D_M = np.empty((n,2,3))

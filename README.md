@@ -1855,9 +1855,34 @@ platemodel.eu.sites
 <p>136 rows × 26 columns</p>
 
 
+### Relative motion of plates
+
+```
+pa_plate = platemodel.pa
+na_plate = platemodel.na
+# euler pole of North America w.r.t. Pacific
+pa_na = na_plate.fixed_ref(pa_plate)
+pprint(pa_na)
+```
+
+```
+{'omega_cartesian': <Quantity [ 0.11831538, -0.48878796,  0.58888957] deg / Ma>,
+ 'omega_cartesian_std': <Quantity [0.00016247, 0.00016937, 0.0001375 ] deg / Ma>,
+ 'omega_spherical': (<Latitude 49.50311891 deg>,
+                     <Longitude 283.60721239 deg>,
+                     <Quantity 0.77440502 deg / Ma>),
+ 'omega_spherical_std': (<Quantity 0.01157821 deg>,
+                         <Quantity 0.01855507 deg>,
+                         <Quantity 0.00015158 deg / Ma>)}
+```
+
+
+
 ### Change log
 
-- **0.1.4 — Mar 9,  2021**
+- **0.1.7 — Mar 9,  2021**
+  - Added calculation of relative motion of plates
+- **0.1.6 — Mar 8,  2021**
   - The first release 
 
 ## Reference

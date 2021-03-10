@@ -18,6 +18,7 @@ import cartopy.feature as cfeature
 from matplotlib.font_manager import FontProperties
 
 from ..utils import Const
+from ..geodetic.estimate_eulerpole import w1_w2
 
 def vel_unit_conver(vel):
     return vel.to(u.rad*u.mm/u.yr).value*(u.mm/u.yr)   
@@ -389,6 +390,19 @@ class Plate(object):
 
         return Velocity(v_info)
 
+    def fixed_ref(self,plate_fixed):
+        fixed_w_xyz = plate_fixed.epr['omega_cartesian'].value
+        fixed_w_xyz_std = plate_fixed.epr['omega_cartesian_std'].value
+
+        w_xyz = self.epr['omega_cartesian'].value
+        w_xyz_std = self.epr['omega_cartesian_std'].value
+
+        w_xyz,w_xyz_std,w_sph,w_sph_std = w1_w2(fixed_w_xyz,fixed_w_xyz_std,w_xyz,w_xyz_std)
+
+        info_omega = {'omega_cartesian':w_xyz,'omega_cartesian_std':w_xyz_std,'omega_spherical':w_sph,'omega_spherical_std':w_sph_std}
+
+        return info_omega     
+
     def plot(self,figname=None,zoom=1,scale=500,U=20):
 
         lats_bnds = self.polygon.lats
@@ -501,7 +515,11 @@ class PlateMotion(object):
         except:
             n = 1   
             info.update({plates.name:plates})     
-        return PlateMotion(info)            
+        return PlateMotion(info)  
+
+    def show_plates_list(self):
+        info = vars(self)
+        return list(info.keys())              
 
     def add_plate(self,plates):
         info = vars(self)
