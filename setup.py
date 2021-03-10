@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='platemotion',
-    version='0.1.7',
+    version='0.1.8',
     description='A package to handle the tectonic plate motion',
     author='Chunxiao Li',
     author_email='lcx366@126.com',
@@ -31,11 +31,17 @@ setup(
         'pandas',
         'xarray',
         'sphericalpolygon',
+        'tqdm',
+        'colorama',
+        'ftplib',
+        'requests',
+        'pkg_resources',
+        'pathlib',
+        'gzip',
+        'zipfile'
         ],
     extras_require={
-        'colored-progress': ['tqdm','colorama'],
-        'download': ['ftplib','requests'],
-        'files': ['pkg_resources','os','pathlib','gzip','zipfile'],
-        'other': ['datetime','time'],
-        },        
+        'files': ['os'],
+        'other': ['datetime','time']
+        }      
     )

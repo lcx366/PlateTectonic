@@ -1887,6 +1887,7 @@ pprint(pa_na)
 
 - Complete the help documentation
 - Add the mapping of velocity field of the global plate motion
+- Add the poloidal/toroidal decomposition of velocity field
 - Add more plate motion models, such as those based on the hot spots reference frame
 - Add calculation about intraplate deformation
 
