@@ -1886,8 +1886,8 @@ pprint(pa_na)
 ## Next release
 
 - Complete the help documentation
-- Add the mapping of the velocity field of the global plate motion
-- Add more plate motion model, such as those based on hot spots reference frame
+- Add the mapping of velocity field of the global plate motion
+- Add more plate motion models, such as those based on the hot spots reference frame
 - Add calculation about intraplate deformation
 
 ## Reference
