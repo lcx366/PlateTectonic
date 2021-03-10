@@ -1876,14 +1876,19 @@ pprint(pa_na)
                          <Quantity 0.00015158 deg / Ma>)}
 ```
 
-
-
 ### Change log
 
 - **0.1.7 — Mar 9,  2021**
   - Added calculation of relative motion of plates
 - **0.1.6 — Mar 8,  2021**
   - The first release 
+
+## Next release
+
+- Complete the help documentation
+- Add the mapping of the velocity field of the global plate motion
+- Add more plate motion model, such as those based on hot spots reference frame
+- Add calculation about intraplate deformation
 
 ## Reference
 
