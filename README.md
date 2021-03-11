@@ -12,7 +12,7 @@ The platemotion package is an archive of scientific routines for handling tecton
 
 1. Install **cartopy** from conda by `conda install cartopy`
 
-2. On Linux, macOS and Windows architectures, the binary wheels can be installed using **pip** by executing one of the following commands:
+2. On Windows, the `awk` command needs to be installed in advance. On Linux, macOS and Windows architectures, the binary wheels can be installed using **pip** by executing one of the following commands:
 
 ```
 pip install platemotion
