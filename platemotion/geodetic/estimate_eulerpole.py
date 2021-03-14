@@ -58,26 +58,24 @@ def PMC(sites_info):
 
     v_xyz = np.array(sites_info.loc[:,['VELX','VELY','VELZ']],dtype=float)
     v_xyz_std = np.array(sites_info.loc[:,['VELX_STD','VELY_STD','VELZ_STD']],dtype=float)
-    v_en,v_en_std = np.empty((n,2)),np.empty((n,2))
+    v_en,weight_M = np.empty((n,2)),np.empty((n,2,2))
     
     lats = np.array(sites_info['Lat. °N'])*u.deg
     lons = np.array(sites_info['Lon. °E'])*u.deg
 
+    ATA,ATB = np.zeros((3,3)),np.zeros(3)
+
     # calculate the the east-north components of velocity
     for i in range(n):
         v_en[i] = v_xyz2v_en(v_xyz[i],lons[i],lats[i])
-        v_en_std[i] = v_xyz_std2v_en_std(v_xyz_std[i],lons[i],lats[i])
-
-    ATA,ATB = np.zeros((3,3)),np.zeros(3) 
-
-    for i in range(n):
+        v_en_std_i = v_xyz_std2v_en_std(v_xyz_std[i],lons[i],lats[i])
         B = v_en[i]
-        cov_v_en_i = np.diag(v_en_std[i]**2)
+        cov_v_en_i = np.diag(v_en_std_i**2)
         A = A_M(lons[i],lats[i])
         A_T = A.T
-        weight_M = inv(cov_v_en_i)
-        ATA += A_T@weight_M@A
-        ATB += A_T@weight_M@B
+        weight_M[i] = inv(cov_v_en_i)
+        ATA += A_T@weight_M[i]@A
+        ATB += A_T@weight_M[i]@B
 
     w_xyz = inv(ATA)@ATB # rad/yr
     w_xyz_std = np.sqrt(np.diag(inv(ATA)))
@@ -85,11 +83,25 @@ def PMC(sites_info):
     
     w_lon,w_lat = w_lon.to(u.deg),w_lat.to(u.deg)
 
-    return w_lat,w_lon,w,w_lat_std,w_lon_std,w_std,w_xyz,w_xyz_std,v_en,v_en_std
+    return w_lat,w_lon,w,w_lat_std,w_lon_std,w_std,w_xyz,w_xyz_std,v_en,weight_M
 
 # Calculate residual
 def res(v_en,A,w_xyz):
     return v_en-A@w_xyz
+
+def sigma_1(v_en_res,weight_M):
+    n = len(v_en_res) 
+    v_en_res2,weight_M_tr = 0,0
+    for j in range(n):
+        v_en_res2 += v_en_res[j]@weight_M[j]@v_en_res[j]
+        weight_M_tr += np.trace(weight_M[j])    
+    sigma = np.sqrt(v_en_res2/weight_M_tr*n/(2*n-3))*2 
+    return sigma  
+  
+def sigma_2(v_en_res):
+    n = len(v_en_res) 
+    sigma = np.sqrt(2*np.sum(v_en_res**2)/(2*n-3))   
+    return sigma  
 
 def w1_w2(w1_xyz,w1_xyz_std,w2_xyz,w2_xyz_std):
     w_xyz = w2_xyz - w1_xyz
@@ -118,21 +130,19 @@ def PMC_iterate(sites_info):
     lons = np.array(sites_info['Lon. °E'])*u.deg
 
     # calculate the Design Matrix
-    for i in range(n):
-        D_M[i] = A_M(lons[i],lats[i])
+    for i in range(n): D_M[i] = A_M(lons[i],lats[i])
     
     # First estimation
-    w_lat,w_lon,w,w_lat_std,w_lon_std,w_std,w_xyz,w_xyz_std,v_en,v_en_std = PMC(sites_info)
+    w_lat,w_lon,w,w_lat_std,w_lon_std,w_std,w_xyz,w_xyz_std,v_en,weight_M = PMC(sites_info)
     v_en_res = res(v_en,D_M,w_xyz)
-    sigma = np.sqrt(np.sum(v_en_res**2)/(2*n-3))
+    sigma = sigma_1(v_en_res,weight_M)
     less_than_3s = norm(v_en_res,axis=1) < 3*sigma 
     data_i = sites_info[less_than_3s]
 
     # Second estimation
-    w_lat_i,w_lon_i,w_i,w_lat_std_i,w_lon_std_i,w_std_i,w_xyz_i,w_xyz_std_i,v_en_i,v_en_std_i = PMC(data_i)
+    w_lat_i,w_lon_i,w_i,w_lat_std_i,w_lon_std_i,w_std_i,w_xyz_i,w_xyz_std_i,v_en_i,weight_M_i = PMC(data_i)
     v_en_res_i = res(v_en[less_than_3s],D_M[less_than_3s],w_xyz_i)
-    n = len(v_en_res_i)
-    sigma_i = np.sqrt(np.sum(v_en_res_i**2)/(2*n-3))
+    sigma_i = sigma_1(v_en_res_i,weight_M_i)
     v_en_res_ii = res(v_en,D_M,w_xyz_i)
     less_than_3s = norm(v_en_res_ii,axis=1) < 3*sigma_i
     data_ii = sites_info[less_than_3s]
@@ -140,10 +150,9 @@ def PMC_iterate(sites_info):
     # loop
     while not np.array_equal(data_i,data_ii):
         data_i = data_ii
-        w_lat_i,w_lon_i,w_i,w_lat_std_i,w_lon_std_i,w_std_i,w_xyz_i,w_xyz_std_i,v_en_i,v_en_std_i = PMC(data_i) 
+        w_lat_i,w_lon_i,w_i,w_lat_std_i,w_lon_std_i,w_std_i,w_xyz_i,w_xyz_std_i,v_en_i,weight_M_i = PMC(data_i) 
         v_en_res_i = res(v_en[less_than_3s],D_M[less_than_3s],w_xyz_i) 
-        n = len(v_en_res_i) 
-        sigma_i = np.sqrt(np.sum(v_en_res_i**2)/(2*n-3)) 
+        sigma_i = sigma_1(v_en_res_i,weight_M_i)
         v_en_res_ii = res(v_en,D_M,w_xyz_i) 
         less_than_3s = norm(v_en_res_ii,axis=1) < 3*sigma_i 
         data_ii = sites_info[less_than_3s] 
@@ -153,6 +162,7 @@ def PMC_iterate(sites_info):
     df['ve'],df['vn'],df['ve_res'],df['vn_res'] = v_en_i[:,0],v_en_i[:,1],v_en_res_i[:,0],v_en_res_i[:,1]
     sites_retain_info = df
     
+    n = len(df)
     epr = {'num_sites':n}
     epr['omega_cartesian'] = (w_xyz_i*u.rad/u.yr).to(u.deg/u.Ma)
     epr['omega_cartesian_std'] =  (w_xyz_std_i*u.rad/u.yr).to(u.deg/u.Ma)
